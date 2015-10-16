@@ -60,17 +60,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void initNN() {
-        int numInputs = 3;
-        int numNodesHL1 = 20;
-        int numNodesHL2 = 20;
+        int numInputs = 1;
+        int numNodesHL1 = 2;
+        int numNodesHL2 = 2;
         int numNodesOL = 1;
+        appendScreenText("\nHL1 =======");
         weightsHL1 = rand2D(numNodesHL1, numInputs+1);   // input to HL1 weights
+        appendScreenText("\nHL2 =======");
         weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1); // HL1 to HL2 weights
+        appendScreenText("\nOL  =======");
         weightsOL  = rand2D(numNodesOL, numNodesHL2+1);  // HL2 to output weights
     }
 
     void trainNN() {
-        double[] outputs = forwardPass(new double[]{1.0, 0.2, 0.4});
+        double[] outputs = forwardPass(new double[]{0.23});
         appendScreenText("\nOutputs: "+doubleArrayToString(outputs));
     }
 
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
             for (int jdx = 0; jdx < n; jdx++) {
                 array[idx][jdx] = Math.random()*2-1; // range [-1, 1)
             }
+            appendScreenText("\n"+idx+": "+doubleArrayToString(array[idx]));
         }
         return array;
     }
