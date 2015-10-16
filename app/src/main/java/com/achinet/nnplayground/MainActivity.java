@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
         int numNodesHL1 = 20;
         int numNodesHL2 = 20;
         int numNodesOL = 1;
-        weightsHL1 = rand2D(numNodesHL1, numInputs+1);
-        weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1);
-        weightsOL  = rand2D(numNodesOL, numNodesHL2+1);
+        weightsHL1 = rand2D(numNodesHL1, numInputs+1);   // input to HL1 weights
+        weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1); // HL1 to HL2 weights
+        weightsOL  = rand2D(numNodesOL, numNodesHL2+1);  // HL2 to output weights
     }
 
     double[][] rand2D(int m, int n) {
@@ -67,7 +67,22 @@ public class MainActivity extends AppCompatActivity {
      * @return          The value(s) of the output layer.
      */
     double[] forwardPass(double[] inputs) {
+        double[] valuesHL1 = calcLayerOutput(inputs, weightsHL1);
+    }
 
+    /**
+     * Calculate the output values of the nodes on a whole layer.
+     *
+     * @param valuesPrevLayer   Values of the previous layer, or input layer for HL1.
+     * @param weights           Weights between the current and previous layer.
+     * @return                  An array of the output value of each node.
+     */
+    static double[] calcLayerOutput(double[] valuesPrevLayer, double[][] weights) {
+        double[] values = new double[weights.length];
+        for (int idx = 0; idx < weights.length; idx++) {
+            values[idx] = calcNodeOutput(valuesPrevLayer, weights[idx];
+        }
+        return values;
     }
 
     /**
@@ -77,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
      * @param a
      * @return
      */
-    double sigmoid(double a) {
+    static double sigmoid(double a) {
         return 1.0/(1+Math.exp(-a));
     }
 
@@ -88,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
      * @param weights   The input weights of the unit, including bias unit.
      * @return          The output of the unit (activated & weighted sum).
      */
-    double calcOutput(double[] prevLayer, double[] weights) {
+    static double calcNodeOutput(double[] prevLayer, double[] weights) {
         double sum = 0;
         for (int idx = 0; idx < prevLayer.length; idx++) {
             sum += prevLayer[idx]*weights[idx];
