@@ -15,7 +15,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    double[][] weights;
+    double[][] weightsHL1;
+    double[][] weightsHL2;
+    double[][] weightsOL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,14 +32,26 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                makeSomeToast();
+                initNN();
+                initToast();
 
             }
         });
     }
 
+    void initNN() {
+        int numInputs = 10;
+        int numNodesHL1 = 20;
+        int numNodesHL2 = 20;
+        int numNodesOL = 1;
+        weightsHL1 = new double[numNodesHL1][numInputs+1];
+        weightsHL2 = new double[numNodesHL2][numNodesHL1+1];
+        weightsOL  = new double[numNodesOL][numNodesHL2+1];
+    }
+
     /**
      * Standard sigmoid function (logistic) used as activation function.
+     * 1/(1+e^(-a))
      *
      * @param a
      * @return
@@ -62,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
         return sigmoid(sum);
     }
 
-    void makeSomeToast() {
+    void initToast() {
         Context context = getApplicationContext();
-        CharSequence text = "Hello toast!";
+        CharSequence text = "NN initialised";
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(context, text, duration);
