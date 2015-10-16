@@ -38,15 +38,10 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         weightsOL  = rand2D(numNodesOL, numNodesHL2+1);  // HL2 to output weights
     }
 
-    void trainNN() {
-        double[] inputs = new double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0, 0.3, 0.567, 0.9};
+    void trainNN(double[] inputs) {
         double[] outputs = forwardPass(inputs);
-        int nIter = 100;
-        long startTime = System.currentTimeMillis();
-        for (int n = 0; n < nIter; n++) {
-            forwardPass(inputs);
-        }
-        double duration = 1.0*(System.currentTimeMillis()-startTime)/nIter;
+        double[] errors = new double[0];
+        backwardPass(errors);
     }
 
     double[][] rand2D(int m, int n) {
@@ -68,6 +63,16 @@ public class Network extends AsyncTask<Double, Integer, Double> {
      */
     double[] forwardPass(double[] inputs) {
         return calcLayerOutput(calcLayerOutput(calcLayerOutput(inputs, weightsHL1), weightsHL2), weightsOL);
+    }
+
+    /**
+     * Run a backward pass of the network, updating the weights accordingly.
+     *
+     * @param errors The MSE of the last forward pass.
+     * @return
+     */
+    double[] backwardPass(double[] errors) {
+        return new double[0];
     }
 
     /**
@@ -139,11 +144,10 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         for (int idx = 0; idx < inputValues.length; idx++) {
             inputs[idx] = inputValues[idx];
         }
-        double[] outputs = forwardPass(inputs);
         int nIter = 20000;
         long startTime = System.currentTimeMillis();
         for (int n = 0; n < nIter; n++) {
-            forwardPass(inputs);
+            trainNN(inputs);
             publishProgress(n+1, nIter);
         }
         return 1.0*(System.currentTimeMillis()-startTime)/nIter;
