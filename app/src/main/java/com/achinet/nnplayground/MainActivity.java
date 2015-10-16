@@ -86,17 +86,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Standard sigmoid function (logistic) used as activation function.
-     * 1/(1+e^(-a))
-     *
-     * @param a
-     * @return
-     */
-    static double sigmoid(double a) {
-        return 1.0/(1+Math.exp(-a));
-    }
-
-    /**
      * Calculate the output of a single unit.
      *
      * @param prevLayer The input layer of that unit (previous layer).
@@ -110,6 +99,17 @@ public class MainActivity extends AppCompatActivity {
         }
         sum += weights[weights.length-1];  // bias unit
         return sigmoid(sum);
+    }
+
+    /**
+     * Standard sigmoid function (logistic) used as activation function.
+     * 1/(1+e^(-a))
+     *
+     * @param a
+     * @return
+     */
+    static double sigmoid(double a) {
+        return 1.0/(1+Math.exp(-a));
     }
 
     void initToast() {
