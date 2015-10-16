@@ -13,9 +13,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    double[][] weightsHL1;
-    double[][] weightsHL2;
-    double[][] weightsOL;
+    Network network;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,16 +22,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
-                initNN();
+                network = new Network(10, 200, 200, 5);
                 makeToast("NN initialised");
-                trainNN();
-                makeToast("Single forward pass complete");
+                network.execute(network.trainTask);
+                makeToast("TrainNN complete.");
             }
         });
     }
@@ -57,89 +56,6 @@ public class MainActivity extends AppCompatActivity {
         str.delete(str.length()-2, str.length());
         str.append("]");
         return str.toString();
-    }
-
-    void initNN() {
-        int numInputs = 1;
-        int numNodesHL1 = 2;
-        int numNodesHL2 = 2;
-        int numNodesOL = 1;
-        appendScreenText("\nHL1 =======");
-        weightsHL1 = rand2D(numNodesHL1, numInputs+1);   // input to HL1 weights
-        appendScreenText("\nHL2 =======");
-        weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1); // HL1 to HL2 weights
-        appendScreenText("\nOL  =======");
-        weightsOL  = rand2D(numNodesOL, numNodesHL2+1);  // HL2 to output weights
-    }
-
-    void trainNN() {
-        double[] outputs = forwardPass(new double[]{0.23});
-        appendScreenText("\nOutputs: "+doubleArrayToString(outputs));
-    }
-
-    double[][] rand2D(int m, int n) {
-        double[][] array = new double[m][n];
-        for (int idx = 0; idx < m; idx++) {
-            for (int jdx = 0; jdx < n; jdx++) {
-                array[idx][jdx] = Math.random()*2-1; // range [-1, 1)
-            }
-            appendScreenText("\n"+idx+": "+doubleArrayToString(array[idx]));
-        }
-        return array;
-    }
-
-    /**
-     * Run a forward pass of the network, using the provided inputs. The weights
-     * must already be set.
-     *
-     * @param inputs    Network input vector.
-     * @return          The value(s) of the output layer.
-     */
-    double[] forwardPass(double[] inputs) {
-        appendScreenText("\nInputs: "+doubleArrayToString(inputs));
-        return calcLayerOutput(calcLayerOutput(calcLayerOutput(inputs, weightsHL1), weightsHL2), weightsOL);
-    }
-
-    /**
-     * Calculate the output values of the nodes on a whole layer.
-     *
-     * @param valuesPrevLayer   Values of the previous layer, or input layer for HL1.
-     * @param weights           Weights between the current and previous layer.
-     * @return                  An array of the output value of each node.
-     */
-    double[] calcLayerOutput(double[] valuesPrevLayer, double[][] weights) {
-        double[] values = new double[weights.length];
-        for (int idx = 0; idx < weights.length; idx++) {
-            values[idx] = calcNodeOutput(valuesPrevLayer, weights[idx]);
-        }
-        return values;
-    }
-
-    /**
-     * Calculate the output of a single unit.
-     *
-     * @param prevLayer The input layer of that unit (previous layer).
-     * @param weights   The input weights of the unit, including bias unit.
-     * @return          The output of the unit (activated & weighted sum).
-     */
-    double calcNodeOutput(double[] prevLayer, double[] weights) {
-        double sum = 0;
-        for (int idx = 0; idx < prevLayer.length; idx++) {
-            sum += prevLayer[idx]*weights[idx];
-        }
-        sum += weights[weights.length-1];  // bias unit
-        return sigmoid(sum);
-    }
-
-    /**
-     * Standard sigmoid function (logistic) used as activation function.
-     * 1/(1+e^(-a))
-     *
-     * @param a
-     * @return
-     */
-    double sigmoid(double a) {
-        return 1.0/(1+Math.exp(-a));
     }
 
     void makeToast(String text) {
