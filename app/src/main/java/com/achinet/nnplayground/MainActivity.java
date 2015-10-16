@@ -67,7 +67,11 @@ public class MainActivity extends AppCompatActivity {
      * @return          The value(s) of the output layer.
      */
     double[] forwardPass(double[] inputs) {
-        double[] valuesHL1 = calcLayerOutput(inputs, weightsHL1);
+        double[] tmpValues;
+        tmpValues = calcLayerOutput(inputs, weightsHL1);
+        tmpValues = calcLayerOutput(tmpValues, weightsHL2);
+        tmpValues = calcLayerOutput(tmpValues, weightsOL);
+        return tmpValues;
     }
 
     /**
@@ -80,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     static double[] calcLayerOutput(double[] valuesPrevLayer, double[][] weights) {
         double[] values = new double[weights.length];
         for (int idx = 0; idx < weights.length; idx++) {
-            values[idx] = calcNodeOutput(valuesPrevLayer, weights[idx];
+            values[idx] = calcNodeOutput(valuesPrevLayer, weights[idx]);
         }
         return values;
     }
