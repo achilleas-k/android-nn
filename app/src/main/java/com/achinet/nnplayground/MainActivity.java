@@ -67,11 +67,7 @@ public class MainActivity extends AppCompatActivity {
      * @return          The value(s) of the output layer.
      */
     double[] forwardPass(double[] inputs) {
-        double[] tmpValues;
-        tmpValues = calcLayerOutput(inputs, weightsHL1);
-        tmpValues = calcLayerOutput(tmpValues, weightsHL2);
-        tmpValues = calcLayerOutput(tmpValues, weightsOL);
-        return tmpValues;
+        return calcLayerOutput(calcLayerOutput(calcLayerOutput(inputs, weightsHL1), weightsHL2), weightsOL);
     }
 
     /**
