@@ -1,8 +1,6 @@
 package com.achinet.nnplayground;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.TextView;
 
 /**
@@ -12,13 +10,21 @@ public class Network extends AsyncTask<Double, Integer, Double> {
 
     TextView progressTextView;
 
-    double[][] weightsHL1;
-    double[][] weightsHL2;
-    double[][] weightsOL;
+    // Number of nodes per layer
     int numInputs;
     int numNodesHL1;
     int numNodesHL2;
     int numNodesOL;
+
+    // Weight arrays
+    double[][] weightsHL1;
+    double[][] weightsHL2;
+    double[][] weightsOL;
+
+    // Intermediate output arrays
+    double[] outputsHL1;
+    double[] outputsHL2;
+    double[] outputsNet;
 
     public Network(int nIn, int nH1, int nH2, int nOut) {
         numInputs = nIn;
@@ -36,6 +42,10 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         weightsHL1 = rand2D(numNodesHL1, numInputs+1);   // input to HL1 weights
         weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1); // HL1 to HL2 weights
         weightsOL  = rand2D(numNodesOL, numNodesHL2+1);  // HL2 to output weights
+
+        outputsHL1 = new double[numNodesHL1];
+        outputsHL2 = new double[numNodesHL2];
+        outputsNet = new double[numNodesOL];
     }
 
     void trainNN(double[] inputs) {
@@ -62,7 +72,10 @@ public class Network extends AsyncTask<Double, Integer, Double> {
      * @return          The value(s) of the output layer.
      */
     double[] forwardPass(double[] inputs) {
-        return calcLayerOutput(calcLayerOutput(calcLayerOutput(inputs, weightsHL1), weightsHL2), weightsOL);
+        outputsHL1 = calcLayerOutput(inputs, weightsHL1);
+        outputsHL2 = calcLayerOutput(outputsHL1, weightsHL2);
+        outputsNet = calcLayerOutput(outputsHL2, weightsOL);
+        return outputsNet;
     }
 
     /**
@@ -123,9 +136,15 @@ public class Network extends AsyncTask<Double, Integer, Double> {
 
     void appendScreenText(String text) {
         String existingText = (String)progressTextView.getText();
-        setScreenText(existingText+text);
+        setScreenText(existingText + text);
     }
 
+    /**
+     * Simple method to return a string representation of an array's elements.
+     *
+     * @param array
+     * @return
+     */
     String arrayToString(double[] array) {
         StringBuilder str = new StringBuilder("[");
         for (double v : array) {
@@ -136,6 +155,21 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         return str.toString();
     }
 
+    /**
+     * Return the element-wise difference between two arrays. No checks are
+     * performed to make sure the arrays are of the same size.
+     *
+     * @param one
+     * @param two
+     * @return
+     */
+    double[] arrayDiff(double[] one, double[] two) {
+        double[] result = new double[one.length];
+        for (int idx = 0; idx < one.length; idx++) {
+            result[idx] = one[idx]-two[idx];
+        }
+        return result;
+    }
 
     // AsyncTask methods
     @Override
@@ -148,7 +182,7 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         long startTime = System.currentTimeMillis();
         for (int n = 0; n < nIter; n++) {
             trainNN(inputs);
-            publishProgress(n+1, nIter);
+            publishProgress(n + 1, nIter);
         }
         return 1.0*(System.currentTimeMillis()-startTime)/nIter;
     }
