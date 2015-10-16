@@ -108,13 +108,13 @@ public class Network extends AsyncTask<Double, Integer, Double> {
 
     /**
      * Standard sigmoid function (logistic) used as activation function.
-     * 1/(1+e^(-a))
+     * 1/(1+e^(-x))
      *
-     * @param a
+     * @param x
      * @return
      */
-    double sigmoid(double a) {
-        return 1.0/(1+Math.exp(-a));
+    double sigmoid(double x) {
+        return 1.0/(1+Math.exp(-x));
     }
 
     void setScreenText(String text) {
