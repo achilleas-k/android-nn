@@ -126,7 +126,7 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         setScreenText(existingText+text);
     }
 
-    String doubleArrayToString(double[] array) {
+    String arrayToString(double[] array) {
         StringBuilder str = new StringBuilder("[");
         for (double v : array) {
             str.append(v+", ");
