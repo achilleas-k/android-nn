@@ -9,7 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -30,23 +33,50 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
                 initNN();
-                initToast();
-
+                makeToast("NN initialised");
+                trainNN();
+                makeToast("Single forward pass complete");
             }
         });
     }
 
+    void setScreenText(String text) {
+        TextView tv = (TextView)findViewById(R.id.screen_text);
+        tv.setText(text);
+    }
+
+    void appendScreenText(String text) {
+        TextView tv = (TextView)findViewById(R.id.screen_text);
+        String existingText = (String)tv.getText();
+        setScreenText(existingText+text);
+    }
+
+    String doubleArrayToString(double[] array) {
+        StringBuilder str = new StringBuilder("[");
+        for (double v : array) {
+            str.append(v+", ");
+        }
+        str.delete(str.length()-2, str.length());
+        str.append("]");
+        return str.toString();
+    }
+
     void initNN() {
-        int numInputs = 10;
+        int numInputs = 3;
         int numNodesHL1 = 20;
         int numNodesHL2 = 20;
         int numNodesOL = 1;
         weightsHL1 = rand2D(numNodesHL1, numInputs+1);   // input to HL1 weights
         weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1); // HL1 to HL2 weights
         weightsOL  = rand2D(numNodesOL, numNodesHL2+1);  // HL2 to output weights
+    }
+
+    void trainNN() {
+        double[] outputs = forwardPass(new double[]{1.0, 0.2, 0.4});
+        appendScreenText("\nOutputs: "+doubleArrayToString(outputs));
     }
 
     double[][] rand2D(int m, int n) {
@@ -67,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
      * @return          The value(s) of the output layer.
      */
     double[] forwardPass(double[] inputs) {
+        appendScreenText("\nInputs: "+doubleArrayToString(inputs));
         return calcLayerOutput(calcLayerOutput(calcLayerOutput(inputs, weightsHL1), weightsHL2), weightsOL);
     }
 
@@ -77,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
      * @param weights           Weights between the current and previous layer.
      * @return                  An array of the output value of each node.
      */
-    static double[] calcLayerOutput(double[] valuesPrevLayer, double[][] weights) {
+    double[] calcLayerOutput(double[] valuesPrevLayer, double[][] weights) {
         double[] values = new double[weights.length];
         for (int idx = 0; idx < weights.length; idx++) {
             values[idx] = calcNodeOutput(valuesPrevLayer, weights[idx]);
@@ -92,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
      * @param weights   The input weights of the unit, including bias unit.
      * @return          The output of the unit (activated & weighted sum).
      */
-    static double calcNodeOutput(double[] prevLayer, double[] weights) {
+    double calcNodeOutput(double[] prevLayer, double[] weights) {
         double sum = 0;
         for (int idx = 0; idx < prevLayer.length; idx++) {
             sum += prevLayer[idx]*weights[idx];
@@ -108,13 +139,12 @@ public class MainActivity extends AppCompatActivity {
      * @param a
      * @return
      */
-    static double sigmoid(double a) {
+    double sigmoid(double a) {
         return 1.0/(1+Math.exp(-a));
     }
 
-    void initToast() {
+    void makeToast(String text) {
         Context context = getApplicationContext();
-        CharSequence text = "NN initialised";
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(context, text, duration);

@@ -14,7 +14,8 @@
         tools:context=".MainActivity">
 
     <TextView
-            android:text="Some text"
+            android:id="@+id/screen_text"
+            android:text="Press button to make stuff happen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 </RelativeLayout>
