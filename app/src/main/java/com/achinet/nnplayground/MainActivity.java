@@ -1,6 +1,7 @@
 package com.achinet.nnplayground;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -30,32 +31,12 @@ public class MainActivity extends AppCompatActivity {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
                 network = new Network(10, 200, 200, 5);
+                network.setProgressTextView((TextView)findViewById(R.id.screen_text));
                 makeToast("NN initialised");
-                network.execute(network.trainTask);
-                makeToast("TrainNN complete.");
+                network.execute(new Double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0.0, 0.3, 0.567, 0.9});
+                // makeToast("TrainNN complete.");
             }
         });
-    }
-
-    void setScreenText(String text) {
-        TextView tv = (TextView)findViewById(R.id.screen_text);
-        tv.setText(text);
-    }
-
-    void appendScreenText(String text) {
-        TextView tv = (TextView)findViewById(R.id.screen_text);
-        String existingText = (String)tv.getText();
-        setScreenText(existingText+text);
-    }
-
-    String doubleArrayToString(double[] array) {
-        StringBuilder str = new StringBuilder("[");
-        for (double v : array) {
-            str.append(v+", ");
-        }
-        str.delete(str.length()-2, str.length());
-        str.append("]");
-        return str.toString();
     }
 
     void makeToast(String text) {

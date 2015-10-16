@@ -1,15 +1,16 @@
 package com.achinet.nnplayground;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
-
-import java.util.concurrent.Executor;
+import android.widget.TextView;
 
 /**
  * Created by achilleas on 16/10/15.
  */
-public class Network implements Executor {
+public class Network extends AsyncTask<Double, Integer, Double> {
 
-    Runnable trainTask;
+    TextView progressTextView;
 
     double[][] weightsHL1;
     double[][] weightsHL2;
@@ -24,8 +25,11 @@ public class Network implements Executor {
         numNodesHL1 = nH1;
         numNodesHL2 = nH2;
         numNodesOL = nOut;
-        trainTask = new ForwardPass();
         initNN();
+    }
+
+    public void setProgressTextView(TextView tv) {
+        progressTextView = tv;
     }
 
     void initNN() {
@@ -108,20 +112,53 @@ public class Network implements Executor {
         return 1.0/(1+Math.exp(-a));
     }
 
-
-    public void execute(Runnable r) {
-        r.run();
+    void setScreenText(String text) {
+        progressTextView.setText(text);
     }
 
-    public class ForwardPass implements Runnable {
-        public void run() {
-            trainNN();
-            Log.d("Network", "ForwardPass complete");
-        }
+    void appendScreenText(String text) {
+        String existingText = (String)progressTextView.getText();
+        setScreenText(existingText+text);
     }
 
-    public class BackwardPass implements Runnable {
-        public void run() {
+    String doubleArrayToString(double[] array) {
+        StringBuilder str = new StringBuilder("[");
+        for (double v : array) {
+            str.append(v+", ");
         }
+        str.delete(str.length()-2, str.length());
+        str.append("]");
+        return str.toString();
+    }
+
+
+    // AsyncTask methods
+    @Override
+    protected Double doInBackground(Double... inputValues) {
+        double[] inputs = new double[inputValues.length];
+        for (int idx = 0; idx < inputValues.length; idx++) {
+            inputs[idx] = inputValues[idx];
+        }
+        double[] outputs = forwardPass(inputs);
+        int nIter = 20000;
+        long startTime = System.currentTimeMillis();
+        for (int n = 0; n < nIter; n++) {
+            forwardPass(inputs);
+            publishProgress(n+1, nIter);
+        }
+        return 1.0*(System.currentTimeMillis()-startTime)/nIter;
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... progress) {
+        float progressPerc = 100f*progress[0]/progress[1];
+        String progressReport = "Progress: "+progress[0]+
+                "/"+progress[1]+" iterations"+" ("+progressPerc+" %)";
+        setScreenText(progressReport);
+    }
+
+    @Override
+    protected void onPostExecute(Double duration) {
+        appendScreenText("\nAverage iteration runtime: "+duration+" ms");
     }
 }
