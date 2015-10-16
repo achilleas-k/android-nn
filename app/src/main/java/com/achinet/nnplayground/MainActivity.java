@@ -44,9 +44,30 @@ public class MainActivity extends AppCompatActivity {
         int numNodesHL1 = 20;
         int numNodesHL2 = 20;
         int numNodesOL = 1;
-        weightsHL1 = new double[numNodesHL1][numInputs+1];
-        weightsHL2 = new double[numNodesHL2][numNodesHL1+1];
-        weightsOL  = new double[numNodesOL][numNodesHL2+1];
+        weightsHL1 = rand2D(numNodesHL1, numInputs+1);
+        weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1);
+        weightsOL  = rand2D(numNodesOL, numNodesHL2+1);
+    }
+
+    double[][] rand2D(int m, int n) {
+        double[][] array = new double[m][n];
+        for (int idx = 0; idx < m; idx++) {
+            for (int jdx = 0; jdx < n; jdx++) {
+                array[idx][jdx] = Math.random()*2-1; // range [-1, 1)
+            }
+        }
+        return array;
+    }
+
+    /**
+     * Run a forward pass of the network, using the provided inputs. The weights
+     * must already be set.
+     *
+     * @param inputs    Network input vector.
+     * @return          The value(s) of the output layer.
+     */
+    double[] forwardPass(double[] inputs) {
+
     }
 
     /**
