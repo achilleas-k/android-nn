@@ -29,7 +29,7 @@ public class Network extends AsyncTask<Integer, Double, Double> {
     double[][] inputs;
     double[][] targetOutputs;
 
-    // parameterise
+    // TODO: parameterize
     double learningRate = 0.2;
 
     public Network(int nIn, int nH1, int nH2, int nOut) {
@@ -242,15 +242,6 @@ public class Network extends AsyncTask<Integer, Double, Double> {
         }
         return result;
     }
-
-    double[] objectToPrimitive(Double[] objArray) {
-        double[] primArray = new double[objArray.length];
-        for (int idx = 0; idx < objArray.length; idx++) {
-            primArray[idx] = objArray[idx];
-        }
-        return primArray;
-    }
-
     // AsyncTask methods
     @Override
     protected Double doInBackground(Integer... args) {
