@@ -6,7 +6,7 @@ import android.widget.TextView;
 /**
  * Created by achilleas on 16/10/15.
  */
-public class Network extends AsyncTask<Double[], Double, Double> {
+public class Network extends AsyncTask<Integer, Double, Double> {
 
     TextView progressTextView;
 
@@ -26,6 +26,9 @@ public class Network extends AsyncTask<Double[], Double, Double> {
     double[] outputsHL2;
     double[] outputsNet;
 
+    double[][] inputs;
+    double[][] targetOutputs;
+
     double learningRate = 0.2;
 
     public Network(int nIn, int nH1, int nH2, int nOut) {
@@ -40,6 +43,11 @@ public class Network extends AsyncTask<Double[], Double, Double> {
         progressTextView = tv;
     }
 
+    public void setData(double[][] in, double[][] out) {
+        inputs = in;
+        targetOutputs = out;
+    }
+
     void initNN() {
         weightsHL1 = rand2D(numNodesHL1, numInputs+1);   // input to HL1 weights
         weightsHL2 = rand2D(numNodesHL2, numNodesHL1+1); // HL1 to HL2 weights
@@ -50,15 +58,23 @@ public class Network extends AsyncTask<Double[], Double, Double> {
         outputsNet = new double[numNodesOL];
     }
 
-    double trainNN(double[] inputs, double[] targetOutputs) {
-        double[] outputs = forwardPass(inputs);
-        double[] errors = arrayDiff(outputs, targetOutputs);
-        backwardPass(errors, inputs);
+    /**
+     * Run a single training iteration (epoch) across all the data.
+     *
+     * @return Mean square error of the iteration.
+     */
+    double trainNN() {
         double mse = 0;
-        for (int idx = 0; idx < numNodesOL; idx++) {
-            mse += Math.pow(errors[idx], 2);
+        for (int didx = 0; didx < inputs.length; didx++) {
+            double[] outputs = forwardPass(inputs[didx]);
+            double[] errors = arrayDiff(outputs, targetOutputs[didx]);
+            backwardPass(errors, inputs[didx]);
+            for (int idx = 0; idx < numNodesOL; idx++) {
+                mse += Math.pow(errors[idx], 2);
+            }
+            mse /= numNodesOL;
         }
-        return mse/numNodesOL;
+        return mse/inputs.length;
     }
 
     double[][] rand2D(int m, int n) {
@@ -235,14 +251,12 @@ public class Network extends AsyncTask<Double[], Double, Double> {
 
     // AsyncTask methods
     @Override
-    protected Double doInBackground(Double[]... args) {
-        double[] inputs = objectToPrimitive(args[0]);
-        double[] targetOutputs = objectToPrimitive(args[1]);
-        double nIter = 2000;
+    protected Double doInBackground(Integer... args) {
+        double nIter = args[0];
         long startTime = System.currentTimeMillis();
         double mse;
         for (int n = 0; n < nIter; n++) {
-            mse = trainNN(inputs, targetOutputs);
+            mse = trainNN();
             publishProgress(n + 1.0, nIter, mse);
         }
         return 1.0*(System.currentTimeMillis()-startTime)/nIter;
@@ -260,5 +274,6 @@ public class Network extends AsyncTask<Double[], Double, Double> {
     @Override
     protected void onPostExecute(Double duration) {
         appendScreenText("\nAverage iteration runtime: "+duration+" ms");
+        appendScreenText("\nNumber of records used in training: "+inputs.length);
     }
 }

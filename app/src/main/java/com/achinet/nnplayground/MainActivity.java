@@ -31,11 +31,13 @@ public class MainActivity extends AppCompatActivity {
                 //        .setAction("Action", null).show();
                 network = new Network(10, 200, 200, 5);
                 network.setProgressTextView((TextView)findViewById(R.id.screen_text));
+                double[][] inputs = new double[1][10];
+                inputs[0] = new double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0.0, 0.3, 0.567, 0.9};
+                double[][] outputs = new double[1][5];
+                outputs[0] = new double[]{0.2, 0.1, 0.8, 0.5, 0.5};
+                network.setData(inputs, outputs);
                 makeToast("NN initialised");
-                Double[] inputs = new Double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0.0, 0.3, 0.567, 0.9};
-                Double[] outputs = new Double[]{0.5, 0.5, 0.5, 0.5, 0.5};
-                network.execute(inputs, outputs);
-                // makeToast("TrainNN complete.");
+                network.execute(2000);
             }
         });
     }
