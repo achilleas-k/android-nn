@@ -26,6 +26,8 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
     double[] outputsHL2;
     double[] outputsNet;
 
+    double learningRate = 0.2;
+
     public Network(int nIn, int nH1, int nH2, int nOut) {
         numInputs = nIn;
         numNodesHL1 = nH1;
@@ -51,7 +53,7 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
     void trainNN(double[] inputs, double[] targetOutputs) {
         double[] outputs = forwardPass(inputs);
         double[] errors = arrayDiff(outputs, targetOutputs);
-        backwardPass(errors);
+        backwardPass(errors, inputs);
     }
 
     double[][] rand2D(int m, int n) {
@@ -83,7 +85,8 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
      *
      * @param errors The errors of the last forward pass.
      */
-    void backwardPass(double[] errors) {
+    void backwardPass(double[] errors, double[] inputs) {
+        // TODO: Can be simplified (which would also generalise)
         // output layer deltas
         double[] deltasOL = new double[numNodesOL];
         for (int idx = 0; idx < numNodesOL; idx++) {
@@ -91,21 +94,46 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
         }
         // hidden layer 2 deltas
         double[] deltasHL2 = new double[numNodesHL2];
-        for (int idx = 0; idx < numNodesHL2; idx++) {
+        for (int nh2 = 0; nh2 < numNodesHL2; nh2++) {
             double weightDeltaSum = 0;
-            for (int jdx = 0; jdx < numNodesOL; jdx++) {
-                weightDeltaSum += weightsOL[jdx][idx]*deltasOL[jdx];
+            for (int nol = 0; nol < numNodesOL; nol++) {
+                weightDeltaSum += weightsOL[nol][nh2]*deltasOL[nol];
             }
-            deltasHL2[idx] = outputsHL2[idx]*(1-outputsHL2[idx])*weightDeltaSum;
+            deltasHL2[nh2] = outputsHL2[nh2]*(1-outputsHL2[nh2])*weightDeltaSum;
         }
         // hidden layer 1 deltas
         double[] deltasHL1 = new double[numNodesHL1];
-        for (int idx = 0; idx < numNodesHL1; idx++) {
+        for (int nh1 = 0; nh1 < numNodesHL1; nh1++) {
             double weightDeltaSum = 0;
-            for (int jdx = 0; jdx < numNodesHL2; jdx++) {
-                weightDeltaSum += weightsHL2[jdx][idx]*deltasHL2[jdx];
+            for (int nh2 = 0; nh2 < numNodesHL2; nh2++) {
+                weightDeltaSum += weightsHL2[nh2][nh1]*deltasHL2[nh2];
             }
-            deltasHL1[idx] = outputsHL1[idx]*(1-outputsHL1[idx])*weightDeltaSum;
+            deltasHL1[nh1] = outputsHL1[nh1]*(1-outputsHL1[nh1])*weightDeltaSum;
+        }
+
+        // hidden layer 1 weight updates
+        for (int nh1 = 0; nh1 < numNodesHL1; nh1++) {
+            for (int nin = 0; nin < numInputs; nin++) {
+                weightsHL1[nh1][nin] -= learningRate*deltasHL1[nh1]*inputs[nin];
+            }
+            // bias unit
+            weightsHL1[nh1][numInputs] -= learningRate*deltasHL1[nh1];
+        }
+        // hidden layer 2 weight updates
+        for (int nh2 = 0; nh2 < numNodesHL2; nh2++) {
+            for (int nh1 = 0; nh1 < numNodesHL1; nh1++) {
+                weightsHL2[nh2][nh1] -= learningRate*deltasHL2[nh2]*outputsHL1[nh1];
+            }
+            // bias unit
+            weightsHL2[nh2][numNodesHL1] -= learningRate*deltasHL2[nh2];
+        }
+        // output layer weight updates
+        for (int nol = 0; nol < numNodesOL; nol++) {
+            for (int nh2 = 0; nh2 < numNodesHL2; nh2++) {
+                weightsOL[nol][nh2] -= learningRate*deltasOL[nol]*outputsHL2[nh2];
+            }
+            // bias unit
+            weightsOL[nol][numNodesHL2] -= learningRate*deltasOL[nol];
         }
     }
 
