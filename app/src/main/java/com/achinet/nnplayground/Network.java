@@ -29,6 +29,7 @@ public class Network extends AsyncTask<Integer, Double, Double> {
     double[][] inputs;
     double[][] targetOutputs;
 
+    // parameterise
     double learningRate = 0.2;
 
     public Network(int nIn, int nH1, int nH2, int nOut) {
@@ -108,6 +109,7 @@ public class Network extends AsyncTask<Integer, Double, Double> {
      */
     void backwardPass(double[] errors, double[] inputs) {
         // TODO: Can be simplified (which would also generalise)
+        // TODO: Include momentum
         // output layer deltas
         double[] deltasOL = new double[numNodesOL];
         for (int idx = 0; idx < numNodesOL; idx++) {
@@ -275,5 +277,11 @@ public class Network extends AsyncTask<Integer, Double, Double> {
     protected void onPostExecute(Double duration) {
         appendScreenText("\nAverage iteration runtime: "+duration+" ms");
         appendScreenText("\nNumber of records used in training: "+inputs.length);
+        String finalOutputs = "\nFinal outputs:\n";
+        for (int idx = 0; idx < inputs.length; idx++) {
+            forwardPass(inputs[idx]);
+            finalOutputs += arrayToString(inputs[idx])+" : "+arrayToString(outputsNet)+"\n";
+        }
+        appendScreenText(finalOutputs);
     }
 }

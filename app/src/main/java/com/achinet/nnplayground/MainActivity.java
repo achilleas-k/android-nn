@@ -29,12 +29,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
-                network = new Network(10, 200, 200, 5);
+                network = new Network(2, 200, 200, 1);
                 network.setProgressTextView((TextView)findViewById(R.id.screen_text));
-                double[][] inputs = new double[1][10];
-                inputs[0] = new double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0.0, 0.3, 0.567, 0.9};
-                double[][] outputs = new double[1][5];
-                outputs[0] = new double[]{0.2, 0.1, 0.8, 0.5, 0.5};
+                double[][] inputs = new double[][]{
+                        {0, 0},
+                        {0, 1},
+                        {1, 0},
+                        {1, 1}};
+                double[][] outputs = new double[][]{
+                        {0}, {1}, {1}, {0}};
                 network.setData(inputs, outputs);
                 makeToast("NN initialised");
                 network.execute(2000);
