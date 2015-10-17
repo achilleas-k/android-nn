@@ -81,11 +81,32 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
     /**
      * Run a backward pass of the network, updating the weights accordingly.
      *
-     * @param errors The MSE of the last forward pass.
-     * @return
+     * @param errors The errors of the last forward pass.
      */
-    double[] backwardPass(double[] errors) {
-        return new double[0];
+    void backwardPass(double[] errors) {
+        // output layer deltas
+        double[] deltasOL = new double[numNodesOL];
+        for (int idx = 0; idx < numNodesOL; idx++) {
+            deltasOL[idx] = outputsNet[idx]*(1-outputsNet[idx])*errors[idx];
+        }
+        // hidden layer 2 deltas
+        double[] deltasHL2 = new double[numNodesHL2];
+        for (int idx = 0; idx < numNodesHL2; idx++) {
+            double weightDeltaSum = 0;
+            for (int jdx = 0; jdx < numNodesOL; jdx++) {
+                weightDeltaSum += weightsOL[jdx][idx]*deltasOL[jdx];
+            }
+            deltasHL2[idx] = outputsHL2[idx]*(1-outputsHL2[idx])*weightDeltaSum;
+        }
+        // hidden layer 1 deltas
+        double[] deltasHL1 = new double[numNodesHL1];
+        for (int idx = 0; idx < numNodesHL1; idx++) {
+            double weightDeltaSum = 0;
+            for (int jdx = 0; jdx < numNodesHL2; jdx++) {
+                weightDeltaSum += weightsHL2[jdx][idx]*deltasHL2[jdx];
+            }
+            deltasHL1[idx] = outputsHL1[idx]*(1-outputsHL1[idx])*weightDeltaSum;
+        }
     }
 
     /**
