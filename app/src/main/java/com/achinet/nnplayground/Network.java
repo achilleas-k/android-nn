@@ -6,7 +6,7 @@ import android.widget.TextView;
 /**
  * Created by achilleas on 16/10/15.
  */
-public class Network extends AsyncTask<Double[], Integer, Double> {
+public class Network extends AsyncTask<Double[], Double, Double> {
 
     TextView progressTextView;
 
@@ -50,10 +50,15 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
         outputsNet = new double[numNodesOL];
     }
 
-    void trainNN(double[] inputs, double[] targetOutputs) {
+    double trainNN(double[] inputs, double[] targetOutputs) {
         double[] outputs = forwardPass(inputs);
         double[] errors = arrayDiff(outputs, targetOutputs);
         backwardPass(errors, inputs);
+        double mse = 0;
+        for (int idx = 0; idx < numNodesOL; idx++) {
+            mse += Math.pow(errors[idx], 2);
+        }
+        return mse/numNodesOL;
     }
 
     double[][] rand2D(int m, int n) {
@@ -233,20 +238,22 @@ public class Network extends AsyncTask<Double[], Integer, Double> {
     protected Double doInBackground(Double[]... args) {
         double[] inputs = objectToPrimitive(args[0]);
         double[] targetOutputs = objectToPrimitive(args[1]);
-        int nIter = 20000;
+        double nIter = 2000;
         long startTime = System.currentTimeMillis();
+        double mse;
         for (int n = 0; n < nIter; n++) {
-            trainNN(inputs, targetOutputs);
-            publishProgress(n + 1, nIter);
+            mse = trainNN(inputs, targetOutputs);
+            publishProgress(n + 1.0, nIter, mse);
         }
         return 1.0*(System.currentTimeMillis()-startTime)/nIter;
     }
 
     @Override
-    protected void onProgressUpdate(Integer... progress) {
-        float progressPerc = 100f*progress[0]/progress[1];
+    protected void onProgressUpdate(Double... progress) {
+        double progressPerc = 100*progress[0]/progress[1];
         String progressReport = "Progress: "+progress[0]+
                 "/"+progress[1]+" iterations"+" ("+progressPerc+" %)";
+        progressReport += "\nMSE: "+progress[2];
         setScreenText(progressReport);
     }
 
