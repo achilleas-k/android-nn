@@ -6,7 +6,7 @@ import android.widget.TextView;
 /**
  * Created by achilleas on 16/10/15.
  */
-public class Network extends AsyncTask<Double, Integer, Double> {
+public class Network extends AsyncTask<Double[], Integer, Double> {
 
     TextView progressTextView;
 
@@ -48,9 +48,9 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         outputsNet = new double[numNodesOL];
     }
 
-    void trainNN(double[] inputs) {
+    void trainNN(double[] inputs, double[] targetOutputs) {
         double[] outputs = forwardPass(inputs);
-        double[] errors = new double[0];
+        double[] errors = arrayDiff(outputs, targetOutputs);
         backwardPass(errors);
     }
 
@@ -171,17 +171,23 @@ public class Network extends AsyncTask<Double, Integer, Double> {
         return result;
     }
 
+    double[] objectToPrimitive(Double[] objArray) {
+        double[] primArray = new double[objArray.length];
+        for (int idx = 0; idx < objArray.length; idx++) {
+            primArray[idx] = objArray[idx];
+        }
+        return primArray;
+    }
+
     // AsyncTask methods
     @Override
-    protected Double doInBackground(Double... inputValues) {
-        double[] inputs = new double[inputValues.length];
-        for (int idx = 0; idx < inputValues.length; idx++) {
-            inputs[idx] = inputValues[idx];
-        }
+    protected Double doInBackground(Double[]... args) {
+        double[] inputs = objectToPrimitive(args[0]);
+        double[] targetOutputs = objectToPrimitive(args[1]);
         int nIter = 20000;
         long startTime = System.currentTimeMillis();
         for (int n = 0; n < nIter; n++) {
-            trainNN(inputs);
+            trainNN(inputs, targetOutputs);
             publishProgress(n + 1, nIter);
         }
         return 1.0*(System.currentTimeMillis()-startTime)/nIter;

@@ -32,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
                 network = new Network(10, 200, 200, 5);
                 network.setProgressTextView((TextView)findViewById(R.id.screen_text));
                 makeToast("NN initialised");
-                network.execute(new Double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0.0, 0.3, 0.567, 0.9});
+                Double[] inputs = new Double[]{0.2, 0.213, 0.111, 0.98, 0.8, 1.0, 0.0, 0.3, 0.567, 0.9};
+                Double[] outputs = new Double[]{0.5, 0.5, 0.5, 0.5, 0.5};
+                network.execute(inputs, outputs);
                 // makeToast("TrainNN complete.");
             }
         });
