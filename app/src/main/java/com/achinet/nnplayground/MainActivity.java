@@ -33,8 +33,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
-                network = new Network(2, 200, 200, 1);
-                network.setProgressTextView((TextView)findViewById(R.id.screen_text));
+                saveConfig();
+                int nHL1 = getMainScreenInt(R.id.nHL1);
+                int nHL2 = getMainScreenInt(R.id.nHL2);
+                int maxIter = getMainScreenInt(R.id.maxIter);
+                network = new Network(2, nHL1, nHL2, 1);
+                network.setProgressTextView((TextView) findViewById(R.id.screen_text));
+                network.setProgressBar((ProgressBar)findViewById(R.id.learningProgress));
                 double[][] inputs = new double[][]{
                         {0, 0},
                         {0, 1},
@@ -44,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                         {0}, {1}, {1}, {0}};
                 network.setData(inputs, outputs);
                 makeToast("NN initialised");
-                network.execute(2000);
+                network.execute(maxIter);
             }
         });
     }

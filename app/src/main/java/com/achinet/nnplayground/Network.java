@@ -1,6 +1,7 @@
 package com.achinet.nnplayground;
 
 import android.os.AsyncTask;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -9,6 +10,7 @@ import android.widget.TextView;
 public class Network extends AsyncTask<Integer, Double, Double> {
 
     TextView progressTextView;
+    ProgressBar progressbar;
 
     // Number of nodes per layer
     int numInputs;
@@ -44,6 +46,10 @@ public class Network extends AsyncTask<Integer, Double, Double> {
         progressTextView = tv;
     }
 
+    public void setProgressBar(ProgressBar pb) {
+        progressbar = pb;
+        progressbar.setMax(100);
+    }
     public void setData(double[][] in, double[][] out) {
         inputs = in;
         targetOutputs = out;
@@ -206,6 +212,7 @@ public class Network extends AsyncTask<Integer, Double, Double> {
         progressTextView.setText(text);
     }
 
+
     void appendScreenText(String text) {
         String existingText = (String)progressTextView.getText();
         setScreenText(existingText + text);
@@ -262,6 +269,7 @@ public class Network extends AsyncTask<Integer, Double, Double> {
                 "/"+progress[1]+" iterations"+" ("+progressPerc+" %)";
         progressReport += "\nMSE: "+progress[2];
         setScreenText(progressReport);
+        progressbar.setProgress((int)progressPerc);
     }
 
     @Override
