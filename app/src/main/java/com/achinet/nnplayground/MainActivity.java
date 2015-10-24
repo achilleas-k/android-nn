@@ -1,13 +1,16 @@
 package com.achinet.nnplayground;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        loadConfig();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -51,6 +55,48 @@ public class MainActivity extends AppCompatActivity {
 
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
+    }
+
+    void loadConfig() {
+        SharedPreferences sharedPref = getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        resetConfig(sharedPref);
+        if (!sharedPref.contains("initialised")) initConfig(sharedPref);
+        ((TextView)findViewById(R.id.nHL1)).setText(""+sharedPref.getInt("layer_one_size", 200));
+        ((TextView)findViewById(R.id.nHL2)).setText(""+sharedPref.getInt("layer_two_size", 200));
+        ((TextView)findViewById(R.id.maxIter)).setText("" + sharedPref.getInt("max_iterations", 100));
+    }
+
+    void saveConfig() {
+        SharedPreferences.Editor editor = getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE).edit();
+        editor.putInt("layer_one_size",
+                Integer.parseInt(((TextView) findViewById(R.id.nHL1)).getText().toString()));
+        editor.putInt("layer_two_size",
+                Integer.parseInt(((TextView) findViewById(R.id.nHL2)).getText().toString()));
+        editor.putInt("max_iterations",
+                Integer.parseInt(((TextView) findViewById(R.id.maxIter)).getText().toString()));
+    }
+
+    int getMainScreenInt(int id) {
+        return Integer.parseInt(((TextView) findViewById(id)).getText().toString());
+    }
+
+    /**
+     * Temporary method for clearing prefs file each run until the settings are finalised.
+     * @param sharedPref
+     */
+    void resetConfig(SharedPreferences sharedPref) {
+        sharedPref.edit().clear();
+    }
+
+    void initConfig(SharedPreferences sharedPref) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("initialised", "-");
+        editor.putInt("layer_one_size", 200);
+        editor.putInt("layer_two_size", 200);
+        editor.putInt("max_iterations", 100);
+        editor.commit();
     }
 
     @Override
